@@ -1,36 +1,54 @@
 <template>
-    <form id="app">
-        <p v-if="errors.length">
-            <b>Errors:</b>
-            <ul>
-                <li :key="error" style="color:red" v-for="error in errors">{{ error }}</li>
-            </ul>
-        </p>
-        <p>
-            <label for="EmployeeName">Employee's Name: </label>
-            <input id="EmployeeName" v-model="permit.EmployeeName" type="text" name="EmployeeName">
-        </p>
-        <p>
-            <label for="EmployeeLastName">Employee's Last Name: </label>
-            <input id="EmployeeLastName" v-model="permit.EmployeeLastName" type="text" name="EmployeeLastName">
-        </p>
-        <p>
-            <label for="PermitDate">Permit Date: </label>
-            <input id="PermitDate" v-model="permit.PermitDate" type="datetime-local" name="PermitDate">
-        </p>
-        <p>
-            <label for="name">Permit Type: </label>
-            <select v-model="permit.PermitTypeId">
-                <option value="">SELECT A PERMIT TYPE</option>
-                <option v-for="permit of permitTypes"  v-bind:value="permit.id" :key="permit.id">{{permit.description}}</option>
-            </select>
-        </p>
-        <p>
-            <a href="/Index">Cancel</a> |
-            <button @click="SaveData">Save </button>
-        </p>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="m-4">
 
-    </form>
+                <div class="card light">
+                    <div class="card-header">
+                        <h3 v-if="Edit">
+                            Update Permit
+                        </h3>
+                        <h3 v-if="!Edit">
+                            Create Permit
+                        </h3>
+                    </div>
+                    <form id="app" class="m-4">
+                        <p v-if="errors.length">
+                            <b>Errors:</b>
+                            <ul>
+                                <li :key="error" style="color:red" v-for="error in errors">{{ error }}</li>
+                            </ul>
+                        </p>
+                        <div class="mb-3">
+                            <label for="EmployeeName">Employee's Name: </label>
+                            <input id="EmployeeName" class="form-control" v-model="permit.EmployeeName" type="text" name="EmployeeName">
+                        </div>
+                        <div class="mb-3">
+                            <label for="EmployeeLastName" class="col-2">Employee's Last Name: </label>
+                            <input id="EmployeeLastName" class="form-control" v-model="permit.EmployeeLastName" type="text" name="EmployeeLastName">
+
+                        </div>
+                        <div class="mb-3">
+                            <label for="PermitDate" class="col-2">Permit Date: </label>
+                            <input id="PermitDate" class="form-control" v-model="permit.PermitDate" type="datetime-local" name="PermitDate">
+
+                        </div>
+                        <div class="mb-3">
+                            <label for="name" class="col-2">Permit Type: </label>
+                            <select class="form-control" v-model="permit.PermitTypeId">
+                                <option value="">SELECT A PERMIT TYPE</option>
+                                <option v-for="permit of permitTypes" v-bind:value="permit.id" :key="permit.id">{{permit.description}}</option>
+                            </select>
+                        </div>
+                        <a href="/permit/Index" class="btn btn-secondary">Cancel</a> |
+                        <button @click="SaveData" class="btn btn-primary">Save</button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+ 
 </template>
 
 <script>
@@ -39,9 +57,10 @@
         name: 'Create',
         data() {
             return {
+                Edit: false,
                 errors: [],
                 permitTypes: [],
-                permit: { ID: 0, EmployeeName: "", EmployeeLastName: "", PermitTypeId: "", PermitDate: new Date() }
+                permit: { ID: 0, EmployeeName: "", EmployeeLastName: "", PermitTypeId: "", PermitDate: new Date().toISOString().slice(0, 10) }
             }
         },
         methods: {
@@ -71,19 +90,20 @@
                         await axios.post("https://localhost:44318/api/Permit", this.permit)
                             .then(() => {
                                 alert("Permit saved successfully");
+                                this.$router.push('/Permit/Index')
                             })
                             .catch(() => {
                                 alert("An unexpected error occurred");
                             });
-
                     }
                     else {
                         await axios.put("https://localhost:44318/api/Permit", this.permit)
                             .then(() => {
-                                console.log("true")
+                                alert("Permit updated successfully");
+                                this.$router.push('/Permit/Index')
                             })
                             .catch(() => {
-                                console.log("false")
+                                alert("An unexpected error occurred");
                             });
                     }
                 }
@@ -99,9 +119,11 @@
             },
             ValidID: function () {
                 if (this.permit.ID == undefined || this.permit.ID == "") {
+                    this.Edit = false;
                     return false;
                 }
                 else {
+                    this.Edit = true;
                     return true;
                 }
             }
