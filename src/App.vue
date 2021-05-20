@@ -11,10 +11,6 @@
                     <li class="nav-item ">
                         <router-link class="nav-link active" to="/Permit/Index">Permit</router-link>
                     </li>
-                    <li class="nav-item">
-                        <router-link class="nav-link " to="/Permit/Create">Create permit</router-link>
-                    </li>
-                    
                 </ul>
             </div>
         </div>
