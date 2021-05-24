@@ -1,14 +1,10 @@
 <template>
     <div class="m-4">
-
-        <div class="card light">
-            <div class="card-header">
-                <h3>
-                    Permit List
-                    <a class="btn  float-end btn-sm btn-primary " href="/permit/Create">+ Add new </a>
-                </h3>
-            </div>
-            <div class="card-body">
+        <Card create_url="Create">
+            <template v-slot:c-header>
+                Permit List
+            </template>
+            <template v-slot:c-body>
                 <table class="table table-bordered table-hover">
                     <thead>
                         <tr>
@@ -24,25 +20,24 @@
                             <td>{{permit.employeeName}}</td>
                             <td>{{permit.employeeLastName}}</td>
                             <td>{{permit.permitDate}}</td>
-                            <td>{{permit.permitType.description}}</td>
+                            <td>{{permit.permitTypeDescription}}</td>
                             <td>
                                 <button class="btn btn-danger" @click="deletePermit(permit.id)">Delete</button> |
-                                <button class="btn btn-secondary" @click="updatePermit(permit.id)" v-bind:href="'/permit/Create/'+permit.id">Edit</button>
+                                <button class="btn btn-secondary" @click="updatePermit(permit.id)">Edit</button>
                             </td>
                         </tr>
                     </tbody>
                 </table>
-            </div>
-
-        </div>
+            </template>
+        </Card>
     </div>
-
 </template>
 
 <script>
-    import axios from 'axios';
+    import Card from '../../components/Card';
+    import PermitService from '../../services/permitService';
     export default {
-        name: 'Create',
+        components: { Card },
         data() {
             return {
                 permits: []
@@ -50,22 +45,20 @@
         },
         methods: {
             deletePermit: async function (id) {
-                let result = confirm("Are you sure you want to delete this record?");
-                if (result) {
-                    await axios.delete("https://localhost:44318/api/Permit/" + id);
-                    this.getPermits();
-                }
+                await PermitService.methods.deletePermit(id);
+                this.getPermits();
             },
-            updatePermit: async function (id) {
-                this.$router.push('/Permit/Create/' + id)
+            updatePermit: function (id) {
+                this.$router.push('/Permit/Create/' + id);
             },
             getPermits: async function () {
-                let permits = await axios.get("https://localhost:44318/api/Permit");
-                this.permits = permits.data;
-            }
+                let permits = await PermitService.methods.getPermits();
+                this.permits = permits;
+            },
         },
         async created() {
-            this.getPermits();
+            await this.getPermits();
+            console.log(this.permits);
         }
     }
 </script>
